@@ -44,12 +44,23 @@
 // OR #include "SH1106Wire.h"   // legacy: #include "SH1106.h"
 #include "../src/WebUI/WebSettings.h"
 
-// Initialize the OLED display using Arduino Wire:
-//SSD1306Wire display(0x3c, GPIO_NUM_22, GPIO_NUM_16); // ADDRESS, SDA, SCL  -  SDA and SCL usually populate automatically based on your board's pins_arduino.h
-SSD1306Wire display(0x3c, GPIO_NUM_14, GPIO_NUM_13, GEOMETRY_128_64);
-// SSD1306Wire display(0x3c, D3, D5);  // ADDRESS, SDA, SCL  -  If not, they can be specified manually.
-// SSD1306Wire display(0x3c, SDA, SCL, GEOMETRY_128_32);  // ADDRESS, SDA, SCL, OLEDDISPLAY_GEOMETRY  -  Extra param required for 128x32 displays.
-// SH1106 display(0x3c, SDA, SCL);     // ADDRESS, SDA, SCL
+#ifndef OLED_ADDRESS
+#    define OLED_ADDRESS 0x3c
+#endif
+
+#ifndef OLED_SDA
+#    define OLED_SDA GPIO_NUM_14
+#endif
+
+#ifndef OLED_SCL
+#    define OLED_SCL GPIO_NUM_13
+#endif
+
+#ifndef OLED_GEOMETRY
+#    define OLED_GEOMETRY GEOMETRY_128_64
+#endif
+
+SSD1306Wire display(OLED_ADDRESS, OLED_SDA, OLED_SCL, OLED_GEOMETRY);
 
 static TaskHandle_t displayUpdateTaskHandle = 0;
 
@@ -111,11 +122,6 @@ String getStateText() {
 
 void displayRadioInfo() {
     String radio_info = "";
-    //     if (wifi_radio_mode->get() == ESP_BT) {
-    // #ifdef ENABLE_BLUETOOTH
-
-    // #endif
-    //     } else {
 
     const uint8_t row1 = 18;
     const uint8_t row2 = 30;
@@ -236,6 +242,8 @@ void displayUpdate(void* pvParameters) {
 
 void display_init() {
     // Initialising the UI will init the display too.
+    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Init Basic OLED");
+
     display.init();
 
     display.flipScreenVertically();
