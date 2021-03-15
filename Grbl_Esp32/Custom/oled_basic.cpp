@@ -67,7 +67,19 @@ static TaskHandle_t displayUpdateTaskHandle = 0;
 // returns the position of a machine axis
 // wpos =true for corrected work postion
 float getPosition(uint8_t axis, bool wpos = true) {
+    float wco;  // work coordinate system offset
+
     float current_position = sys_position[axis] / axis_settings[axis]->steps_per_mm->get();
+
+    if (wpos) {
+        // Apply work coordinate offsets and tool length offset to current position.
+        wco = gc_state.coord_system[axis] + gc_state.coord_offset[axis];
+        if (axis == TOOL_LENGTH_OFFSET_AXIS) {
+            wco += gc_state.tool_length_offset;
+        }
+
+        current_position -= wco;
+    }
     return current_position;
 }
 
