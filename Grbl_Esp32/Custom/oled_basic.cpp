@@ -34,6 +34,10 @@
 
     platformio lib install 562
 
+    Add this to your machine definition
+
+    #define CUSTOM_CODE_FILENAME "Custom/oled_basic.cpp"
+
 */
 
 // Include the correct display library
