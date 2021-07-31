@@ -104,6 +104,9 @@ namespace Spindles {
         auto max_rpm = this->_max_rpm;
         auto max_freq = this->_max_freq;
         uint32_t rpm = (freq*max_rpm)/max_freq;
+        if(rpm < 0){
+            rpm = 0;
+        }
         return rpm;
     }
 
