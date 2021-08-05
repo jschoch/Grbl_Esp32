@@ -68,22 +68,10 @@ namespace Spindles {
 
                 // NOTE: data length is excluding the CRC16 checksum.
         data.tx_length = 6;
-        data.rx_length = 5;
+        data.rx_length = 6; // write response is 6, 5 for read... error should be 3 long
 
-        // We have to know the max RPM before we can set the current RPM:
-        auto max_rpm = this->_max_rpm;
-        auto max_freq = this->_max_freq;
-
-        // Assuming max frequncy is 400Hz
-        // Speed is in [0..40,000] 
-        uint16_t freq = (uint16_t(rpm) * max_freq) / uint32_t(max_rpm);
-        if (freq < 0) {
-            freq = 0;
-        }
-        if (freq > max_freq) {
-            freq = max_freq;
-        }
-
+        
+        uint16_t freq = rpm_to_frequency(rpm);
         data.msg[1] = 0x06;  // WRITE
         data.msg[2] = 0x25;  // Command ID 0x2502
         data.msg[3] = 0x02;
@@ -98,6 +86,13 @@ namespace Spindles {
         auto max_rpm = this->_max_rpm;
         auto max_freq = this->_max_freq;
         uint16_t freq = (uint32_t(rpm) * max_freq) / uint32_t(max_rpm);
+       if (freq < 0) {
+            freq = 0;
+        }
+        if (freq > max_freq) {
+            freq = max_freq;
+        }
+
         return freq;
     }
 
@@ -105,6 +100,12 @@ namespace Spindles {
         auto max_rpm = this->_max_rpm;
         auto max_freq = this->_max_freq;
         uint32_t rpm = (freq*max_rpm)/max_freq;
+        if(rpm < 0){
+            rpm = 0;
+        }
+#ifdef VFD_DEBUG_MODE
+        //grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "freq_to_rpm f: %d, RPM: %d", int(freq), int(rpm));
+#endif
         if(rpm < 0){
             rpm = 0;
         }

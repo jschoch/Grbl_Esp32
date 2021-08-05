@@ -249,6 +249,9 @@ namespace Spindles {
                     report_hex_msg(next_cmd.msg, "RS485 Tx: ", next_cmd.tx_length);
                     report_hex_msg(rx_message, "RS485 Rx: ", read_length);
 
+                    grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "%s", report);
+
+
                     if (read_length != 0) {
                         if (rx_message[0] != VFD_RS485_ADDR) {
                             grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "RS485 received message from other modbus device");
